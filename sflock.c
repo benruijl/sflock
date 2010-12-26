@@ -76,7 +76,7 @@ main(int argc, char **argv) {
     KeySym ksym;
     Pixmap pmap;
     Window root, w;
-    XColor black, dummy;
+    XColor black, red, dummy;
     XEvent ev;
     XSetWindowAttributes wa;
     XFontStruct* font;
@@ -106,22 +106,25 @@ main(int argc, char **argv) {
     root = RootWindow(dpy, screen);
     width = DisplayWidth(dpy, screen);
     height = DisplayHeight(dpy, screen);
-
+    
+    wa.override_redirect = 1;
     wa.background_pixel = XBlackPixel(dpy, screen);
     w = XCreateWindow(dpy, root, 0, 0, width, height,
             0, DefaultDepth(dpy, screen), CopyFromParent,
             DefaultVisual(dpy, screen), CWOverrideRedirect | CWBackPixel, &wa);
 
+    XAllocNamedColor(dpy, DefaultColormap(dpy, screen), "orange red", &red, &dummy);
     XAllocNamedColor(dpy, DefaultColormap(dpy, screen), "black", &black, &dummy);
     pmap = XCreateBitmapFromData(dpy, w, curs, 8, 8);
     invisible = XCreatePixmapCursor(dpy, pmap, pmap, &black, &black, 0, 0);
     XDefineCursor(dpy, w, invisible);
     XMapRaised(dpy, w);
 
-    font = XLoadQueryFont(dpy, "-*-helvetica-bold-r-*-*-*-420-100-100-*-*-iso8859-1");
-    gc = XCreateGC(dpy,w,(unsigned long)0,&values);
+    font = XLoadQueryFont(dpy, "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1");
+    gc = XCreateGC(dpy, w, (unsigned long)0, &values);
     XSetFont(dpy, gc, font->fid);
     XSetForeground(dpy, gc, XWhitePixel(dpy, screen));
+   
 
     XSelectInput(dpy, w, ExposureMask); // allow updates
 
@@ -152,7 +155,7 @@ main(int argc, char **argv) {
 
         if (update) {
             XClearWindow(dpy, w);
-            XDrawLine(dpy, w, gc, width * 3 / 8 , (height + 12) / 2, width * 5 / 8, (height + 12) / 2);
+            XDrawLine(dpy, w, gc, width * 3 / 8 , (height + 21) / 2, width * 5 / 8, (height + 21) / 2);
             XDrawString(dpy,w,gc, (width - XTextWidth(font, passchar, len)) / 2, (height+42) / 2, passchar, len);
             update = False;
         }
@@ -180,7 +183,8 @@ main(int argc, char **argv) {
                     running = strcmp(crypt(passwd, pws), pws);
 #endif
                     if (running != 0)
-                        XBell(dpy, 100);
+                        // change bakground on wrong password
+                        XSetWindowBackground(dpy, w, red.pixel);
                     len = 0;
                     break;
                 case XK_Escape:
