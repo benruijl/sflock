@@ -64,7 +64,7 @@ int
 main(int argc, char **argv) {
     char curs[] = {0, 0, 0, 0, 0, 0, 0, 0};
     char buf[32], passwd[256], passchar[256];
-    int num, screen, width, height, update;
+    int num, screen, width, height, update, sleepmode;
 
 #ifndef HAVE_BSD_AUTH
     const char *pws;
@@ -106,7 +106,7 @@ main(int argc, char **argv) {
     root = RootWindow(dpy, screen);
     width = DisplayWidth(dpy, screen);
     height = DisplayHeight(dpy, screen);
-    
+
     wa.override_redirect = 1;
     wa.background_pixel = XBlackPixel(dpy, screen);
     w = XCreateWindow(dpy, root, 0, 0, width, height,
@@ -124,9 +124,6 @@ main(int argc, char **argv) {
     gc = XCreateGC(dpy, w, (unsigned long)0, &values);
     XSetFont(dpy, gc, font->fid);
     XSetForeground(dpy, gc, XWhitePixel(dpy, screen));
-   
-
-    XSelectInput(dpy, w, ExposureMask); // allow updates
 
     for(len = 1000; len; len--) {
         if(XGrabPointer(dpy, root, False, ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
@@ -146,11 +143,15 @@ main(int argc, char **argv) {
     len = 0;
     XSync(dpy, False);
     update = True;
+    sleepmode = False;
 
     /* main event loop */
     while(running && !XNextEvent(dpy, &ev)) {
-        if (ev.type == Expose) {
-            update = True;
+        if (sleepmode) {
+            DPMSEnable(dpy);
+            DPMSForceLevel(dpy, DPMSModeOff);
+            XFlush(dpy);
+
         }
 
         if (update) {
@@ -160,7 +161,13 @@ main(int argc, char **argv) {
             update = False;
         }
 
+        if (ev.type == MotionNotify) {
+            sleepmode = False;
+        }
+
         if(ev.type == KeyPress) {
+            sleepmode = False;
+
             buf[0] = 0;
             num = XLookupString(&ev.xkey, buf, sizeof buf, &ksym, 0);
             if(IsKeypadKey(ksym)) {
@@ -189,6 +196,11 @@ main(int argc, char **argv) {
                     break;
                 case XK_Escape:
                     len = 0;
+
+                    if (DPMSCapable(dpy)) {
+                        sleepmode = True;
+                    }
+
                     break;
                 case XK_BackSpace:
                     if(len)
@@ -206,6 +218,7 @@ main(int argc, char **argv) {
             update = True; // show changes
         }
     }
+
     XUngrabPointer(dpy, CurrentTime);
     XFreePixmap(dpy, pmap);
     XFreeFont(dpy, font);
