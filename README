@@ -22,4 +22,10 @@ Afterwards enter the following command to build and install sflock
 
 Running sflock
 -------------
-Simply invoke the 'sflock' command. To get out of it, enter your password.
+
+Simply invoking the sflock command starts the display locker with default
+settings.
+
+Use -f to modify the font, -c to modify the password character, and -b
+to modify the vertical offset of the bar.
+

@@ -63,7 +63,7 @@ get_password() { /* only run as root */
 int
 main(int argc, char **argv) {
     char curs[] = {0, 0, 0, 0, 0, 0, 0, 0};
-    char buf[32], passwd[256], passchar[256];
+    char buf[32], passwd[256], passdisp[256];
     int num, screen, width, height, update, sleepmode;
 
 #ifndef HAVE_BSD_AUTH
@@ -83,17 +83,42 @@ main(int argc, char **argv) {
     GC gc; 
     XGCValues values;
 
-    // fill with password character
-    for (int i = 0; i < sizeof passchar; i++) {
-        passchar[i] = '*';
+    // defaults
+    char passchar = '*';
+    float baroffset= 60;
+    char* fontname = "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
+
+    for (int i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-c")) {
+            if (i + 1 < argc) 
+                passchar = argv[i + 1][0];
+            else
+                die("error: no password character given.\n");
+        } else
+            if (!strcmp(argv[i], "-f")) {
+                if (i + 1 < argc) 
+                    fontname = argv[i + 1];
+                else
+                    die("error: font not specified.\n");
+            }
+        if (!strcmp(argv[i], "-b")) {
+            if (i + 1 < argc) 
+                baroffset = strtof(argv[i + 1], 0);
+            else
+                die("error: bar offset not specified.\n");
+        }
+        else
+            if (!strcmp(argv[i], "-v")) 
+                die("sflock-"VERSION", © 2010 Ben Ruijl\n");
+            else 
+                if (!strcmp(argv[i], "?")) 
+                    die("usage: sflock [-v] [-c passchar] [-f fontname] [-b bar offset]\n");
     }
 
-
-    if((argc == 2) && !strcmp("-v", argv[1]))
-        die("sflock-"VERSION", © 2010 Ben Ruijl\n");
-    else if(argc != 1)
-        die("usage: sflock [-v]\n");
-
+    // fill with password character
+    for (int i = 0; i < sizeof passdisp; i++) {
+        passdisp[i] = passchar;
+    }
 
 #ifndef HAVE_BSD_AUTH
     pws = get_password();
@@ -120,7 +145,12 @@ main(int argc, char **argv) {
     XDefineCursor(dpy, w, invisible);
     XMapRaised(dpy, w);
 
-    font = XLoadQueryFont(dpy, "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1");
+    font = XLoadQueryFont(dpy, fontname);
+
+    if (font == 0) {
+        die("error: could not find font. Try using a full description.\n");
+    }
+
     gc = XCreateGC(dpy, w, (unsigned long)0, &values);
     XSetFont(dpy, gc, font->fid);
     XSetForeground(dpy, gc, XWhitePixel(dpy, screen));
@@ -156,8 +186,8 @@ main(int argc, char **argv) {
 
         if (update) {
             XClearWindow(dpy, w);
-            XDrawLine(dpy, w, gc, width * 3 / 8 , (height + 21) / 2, width * 5 / 8, (height + 21) / 2);
-            XDrawString(dpy,w,gc, (width - XTextWidth(font, passchar, len)) / 2, (height+42) / 2, passchar, len);
+            XDrawLine(dpy, w, gc, width * 3 / 8 , (height + baroffset) / 2, width * 5 / 8, (height + baroffset) / 2);
+            XDrawString(dpy,w,gc, (width - XTextWidth(font, passdisp, len)) / 2, (height+42) / 2, passdisp, len);
             update = False;
         }
 
