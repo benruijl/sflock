@@ -85,8 +85,8 @@ main(int argc, char **argv) {
 
     // defaults
     char passchar = '*';
-    float baroffset= 60;
     char* fontname = "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
+    char* username = getlogin(); 
 
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-c")) {
@@ -101,18 +101,12 @@ main(int argc, char **argv) {
                 else
                     die("error: font not specified.\n");
             }
-        if (!strcmp(argv[i], "-b")) {
-            if (i + 1 < argc) 
-                baroffset = strtof(argv[i + 1], 0);
             else
-                die("error: bar offset not specified.\n");
-        }
-        else
-            if (!strcmp(argv[i], "-v")) 
-                die("sflock-"VERSION", © 2010 Ben Ruijl\n");
-            else 
-                if (!strcmp(argv[i], "?")) 
-                    die("usage: sflock [-v] [-c passchar] [-f fontname] [-b bar offset]\n");
+                if (!strcmp(argv[i], "-v")) 
+                    die("sflock-"VERSION", © 2010 Ben Ruijl\n");
+                else 
+                    if (!strcmp(argv[i], "?")) 
+                        die("usage: sflock [-v] [-c passchar] [-f fontname]\n");
     }
 
     // fill with password character
@@ -185,9 +179,17 @@ main(int argc, char **argv) {
         }
 
         if (update) {
+            int x, y, dir, ascent, descent;
+            XCharStruct overall;
+
             XClearWindow(dpy, w);
-            XDrawLine(dpy, w, gc, width * 3 / 8 , (height + baroffset) / 2, width * 5 / 8, (height + baroffset) / 2);
-            XDrawString(dpy,w,gc, (width - XTextWidth(font, passdisp, len)) / 2, (height+42) / 2, passdisp, len);
+            XTextExtents (font, passdisp, len, &dir, &ascent, &descent, &overall);
+            x = (width - overall.width) / 2;
+            y = (height + ascent - descent) / 2;
+
+            XDrawString(dpy,w,gc, (width - XTextWidth(font, username, strlen(username))) / 2, y - ascent - 20, username, strlen(username));
+            XDrawLine(dpy, w, gc, width * 3 / 8 , y - ascent - 10, width * 5 / 8, y - ascent - 10);
+            XDrawString(dpy,w,gc, x, y, passdisp, len);
             update = False;
         }
 
