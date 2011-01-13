@@ -86,7 +86,7 @@ main(int argc, char **argv) {
     // defaults
     char passchar = '*';
     char* fontname = "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
-    char* username = getlogin(); 
+    char* username = ""; 
 
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-c")) {
@@ -116,6 +116,9 @@ main(int argc, char **argv) {
 
 #ifndef HAVE_BSD_AUTH
     pws = get_password();
+    username = getpwuid(getuid())->pw_name;
+#else
+    username = getlogin();
 #endif
 
     if(!(dpy = XOpenDisplay(0)))
