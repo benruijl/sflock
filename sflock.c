@@ -240,7 +240,7 @@ main(int argc, char **argv) {
                     running = strcmp(crypt(passwd, pws), pws);
 #endif
                     if (running != 0)
-                        // change bakground on wrong password
+                        // change background on wrong password
                         XSetWindowBackground(dpy, w, red.pixel);
                     len = 0;
                     break;
@@ -274,9 +274,10 @@ main(int argc, char **argv) {
     if ((ioctl(term, VT_UNLOCKSWITCH)) == -1) {
         perror("error unlocking console"); 
     }
-    setuid(getuid()); // drop rights permanently
 
     close(term);
+    setuid(getuid()); // drop rights permanently
+
 
     XUngrabPointer(dpy, CurrentTime);
     XFreePixmap(dpy, pmap);
