@@ -12,6 +12,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
+#include <linux/vt.h>
+#include <fcntl.h> 
+#include <errno.h> 
+#include <termios.h>
 #include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -64,7 +69,7 @@ int
 main(int argc, char **argv) {
     char curs[] = {0, 0, 0, 0, 0, 0, 0, 0};
     char buf[32], passwd[256], passdisp[256];
-    int num, screen, width, height, update, sleepmode;
+    int num, screen, width, height, update, sleepmode, term;
 
 #ifndef HAVE_BSD_AUTH
     const char *pws;
@@ -167,6 +172,17 @@ main(int argc, char **argv) {
         }
         running = (len > 0);
     }
+
+    /* disable tty switching */
+    if ((term = open("/dev/console", O_RDWR)) == -1) {
+        perror("error opening console");
+    }
+
+    if ((ioctl(term, VT_LOCKSWITCH)) == -1) {
+        perror("error locking console"); 
+    }
+
+
     len = 0;
     XSync(dpy, False);
     update = True;
@@ -253,6 +269,13 @@ main(int argc, char **argv) {
             update = True; // show changes
         }
     }
+
+    /* free and unlock */
+    if ((ioctl(term, VT_UNLOCKSWITCH)) == -1) {
+        perror("error unlocking console"); 
+    }
+
+    close(term);
 
     XUngrabPointer(dpy, CurrentTime);
     XFreePixmap(dpy, pmap);
