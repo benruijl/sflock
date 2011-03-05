@@ -89,7 +89,7 @@ main(int argc, char **argv) {
     XGCValues values;
 
     // defaults
-    char passchar = '*';
+    char* passchar = "*";
     char* fontname = "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
     char* username = ""; 
     int showline = 1;
@@ -97,7 +97,7 @@ main(int argc, char **argv) {
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-c")) {
             if (i + 1 < argc) 
-                passchar = argv[i + 1][0];
+                passchar = argv[i + 1];
             else
                 die("error: no password character given.\n");
         } else
@@ -115,13 +115,14 @@ main(int argc, char **argv) {
                         showline = 0;
                     else 
                         if (!strcmp(argv[i], "?")) 
-                            die("usage: sflock [-v] [-c passchar] [-f fontname]\n");
+                            die("usage: sflock [-v] [-c passchars] [-f fontname]\n");
     }
 
-    // fill with password character
-    for (int i = 0; i < sizeof passdisp; i++) {
-        passdisp[i] = passchar;
-    }
+    // fill with password characters
+    for (int i = 0; i < sizeof passdisp; i+= strlen(passchar)) 
+        for (int j = 0; j < strlen(passchar); j++)
+            passdisp[i + j] = passchar[j];
+
 
     /* disable tty switching */
     if ((term = open("/dev/console", O_RDWR)) == -1) {
@@ -209,10 +210,10 @@ main(int argc, char **argv) {
             y = (height + ascent - descent) / 2;
 
             XDrawString(dpy,w,gc, (width - XTextWidth(font, username, strlen(username))) / 2, y - ascent - 20, username, strlen(username));
-            
+
             if (showline)
                 XDrawLine(dpy, w, gc, width * 3 / 8 , y - ascent - 10, width * 5 / 8, y - ascent - 10);
-            
+
             XDrawString(dpy,w,gc, x, y, passdisp, len);
             update = False;
         }

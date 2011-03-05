@@ -29,6 +29,9 @@ Running sflock
 Simply invoking the sflock command starts the display locker with default
 settings.
 
-Use -f to modify the font, -c to modify the password character, and -h
-to toggle the bar.
+Custom settings:
+
+-b: toggle the bar.
+-f <font description>: modify the font.
+-c <password characters>: modify the characters displayed when the user enters his password. This can be a sequence of characters to create a fake password.
 
