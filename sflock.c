@@ -92,6 +92,7 @@ main(int argc, char **argv) {
     char passchar = '*';
     char* fontname = "-*-verdana-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
     char* username = ""; 
+    int showline = 1;
 
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-c")) {
@@ -110,8 +111,11 @@ main(int argc, char **argv) {
                 if (!strcmp(argv[i], "-v")) 
                     die("sflock-"VERSION", © 2010 Ben Ruijl\n");
                 else 
-                    if (!strcmp(argv[i], "?")) 
-                        die("usage: sflock [-v] [-c passchar] [-f fontname]\n");
+                    if (!strcmp(argv[i], "-h")) 
+                        showline = 0;
+                    else 
+                        if (!strcmp(argv[i], "?")) 
+                            die("usage: sflock [-v] [-c passchar] [-f fontname]\n");
     }
 
     // fill with password character
@@ -193,7 +197,6 @@ main(int argc, char **argv) {
             DPMSEnable(dpy);
             DPMSForceLevel(dpy, DPMSModeOff);
             XFlush(dpy);
-
         }
 
         if (update) {
@@ -206,7 +209,10 @@ main(int argc, char **argv) {
             y = (height + ascent - descent) / 2;
 
             XDrawString(dpy,w,gc, (width - XTextWidth(font, username, strlen(username))) / 2, y - ascent - 20, username, strlen(username));
-            XDrawLine(dpy, w, gc, width * 3 / 8 , y - ascent - 10, width * 5 / 8, y - ascent - 10);
+            
+            if (showline)
+                XDrawLine(dpy, w, gc, width * 3 / 8 , y - ascent - 10, width * 5 / 8, y - ascent - 10);
+            
             XDrawString(dpy,w,gc, x, y, passdisp, len);
             update = False;
         }
