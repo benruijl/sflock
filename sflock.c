@@ -58,8 +58,8 @@ get_password() { /* only run as root */
     }
 #endif
 
-    /* drop privileges */
-    if(setgid(pw->pw_gid) < 0 || setuid(pw->pw_uid) < 0)
+    /* drop privileges temporarily */
+    if (setreuid(0, pw->pw_uid) == -1)
         die("sflock: cannot drop privileges\n");
     return rval;
 }
@@ -119,9 +119,18 @@ main(int argc, char **argv) {
         passdisp[i] = passchar;
     }
 
+    /* disable tty switching */
+    if ((term = open("/dev/console", O_RDWR)) == -1) {
+        perror("error opening console");
+    }
+
+    if ((ioctl(term, VT_LOCKSWITCH)) == -1) {
+        perror("error locking console"); 
+    }
+
 #ifndef HAVE_BSD_AUTH
     pws = get_password();
-    username = getpwuid(getuid())->pw_name;
+    username = getpwuid(geteuid())->pw_name;
 #else
     username = getlogin();
 #endif
@@ -172,16 +181,6 @@ main(int argc, char **argv) {
         }
         running = (len > 0);
     }
-
-    /* disable tty switching */
-    if ((term = open("/dev/console", O_RDWR)) == -1) {
-        perror("error opening console");
-    }
-
-    if ((ioctl(term, VT_LOCKSWITCH)) == -1) {
-        perror("error locking console"); 
-    }
-
 
     len = 0;
     XSync(dpy, False);
@@ -271,9 +270,11 @@ main(int argc, char **argv) {
     }
 
     /* free and unlock */
+    setreuid(geteuid(), 0);
     if ((ioctl(term, VT_UNLOCKSWITCH)) == -1) {
         perror("error unlocking console"); 
     }
+    setuid(getuid()); // drop rights permanently
 
     close(term);
 
