@@ -69,7 +69,7 @@ int
 main(int argc, char **argv) {
     char curs[] = {0, 0, 0, 0, 0, 0, 0, 0};
     char buf[32], passwd[256], passdisp[256];
-    int num, screen, width, height, update, sleepmode, term;
+    int num, screen, width, height, update, sleepmode, term, pid;
 
 #ifndef HAVE_BSD_AUTH
     const char *pws;
@@ -132,6 +132,13 @@ main(int argc, char **argv) {
     if ((ioctl(term, VT_LOCKSWITCH)) == -1) {
         perror("error locking console"); 
     }
+
+    /* deamonize */
+    pid = fork();
+    if (pid < 0) 
+        die("Could not fork sflock.");
+    if (pid > 0) 
+        exit(0); // exit parent 
 
 #ifndef HAVE_BSD_AUTH
     pws = get_password();
