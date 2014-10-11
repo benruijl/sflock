@@ -120,7 +120,7 @@ main(int argc, char **argv) {
 
     // fill with password characters
     for (int i = 0; i < sizeof passdisp; i+= strlen(passchar)) 
-        for (int j = 0; j < strlen(passchar); j++)
+        for (int j = 0; j < strlen(passchar) && i + j < sizeof passdisp; j++)
             passdisp[i + j] = passchar[j];
 
 
