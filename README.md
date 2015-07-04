@@ -11,7 +11,7 @@ In order to build sflock you need the Xlib header files.
 
 Installation
 ------------
-Arch Linux users can install this package from the AUR(http://aur.archlinux.org/packages.php?ID=44802).
+Arch Linux users can install this package from the AUR(https://aur4.archlinux.org/packages/sflock-git).
 
 Manual installation:
 Edit config.mk to match your local setup (sflock is installed into
