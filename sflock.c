@@ -93,6 +93,7 @@ main(int argc, char **argv) {
     char* fontname = "-*-dejavu sans-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
     char* username = ""; 
     int showline = 1;
+    int xshift = 0;
 
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-c")) {
@@ -109,13 +110,16 @@ main(int argc, char **argv) {
             }
             else
                 if (!strcmp(argv[i], "-v")) 
-                    die("sflock-"VERSION", © 2010 Ben Ruijl\n");
+                    die("sflock-"VERSION", © 2015 Ben Ruijl\n");
                 else 
                     if (!strcmp(argv[i], "-h")) 
                         showline = 0;
                     else 
-                        if (!strcmp(argv[i], "?")) 
-                            die("usage: sflock [-v] [-c passchars] [-f fontname]\n");
+                        if (!strcmp(argv[i], "-xshift"))
+                            xshift = atoi(argv[i + 1]);
+                        else
+                            if (!strcmp(argv[i], "?"))
+                                die("usage: sflock [-v] [-c passchars] [-f fontname] [-xshift horizontal shift]\n");
     }
 
     // fill with password characters
@@ -216,12 +220,12 @@ main(int argc, char **argv) {
             x = (width - overall.width) / 2;
             y = (height + ascent - descent) / 2;
 
-            XDrawString(dpy,w,gc, (width - XTextWidth(font, username, strlen(username))) / 2, y - ascent - 20, username, strlen(username));
+            XDrawString(dpy,w,gc, (width - XTextWidth(font, username, strlen(username))) / 2 + xshift, y - ascent - 20, username, strlen(username));
 
             if (showline)
-                XDrawLine(dpy, w, gc, width * 3 / 8 , y - ascent - 10, width * 5 / 8, y - ascent - 10);
+                XDrawLine(dpy, w, gc, width * 3 / 8 + xshift, y - ascent - 10, width * 5 / 8 + xshift, y - ascent - 10);
 
-            XDrawString(dpy,w,gc, x, y, passdisp, len);
+            XDrawString(dpy,w,gc, x + xshift, y, passdisp, len);
             update = False;
         }
 
