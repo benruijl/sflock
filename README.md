@@ -31,7 +31,7 @@ settings.
 
 Custom settings:
 
--b: toggle the bar.
--f <font description>: modify the font.
--c <password characters>: modify the characters displayed when the user enters his password. This can be a sequence of characters to create a fake password.
+-h: toggle the bar.  
+-f <font description>: modify the font.  
+-c <password characters>: modify the characters displayed when the user enters his password. This can be a sequence of characters to create a fake password.  
 
