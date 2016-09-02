@@ -115,9 +115,12 @@ main(int argc, char **argv) {
                     if (!strcmp(argv[i], "-h")) 
                         showline = 0;
                     else 
-                        if (!strcmp(argv[i], "-xshift"))
+                        if (!strcmp(argv[i], "-xshift")) {
+                            if (i+1 == argc)
+                                die("error: missing xshift value\n");
                             xshift = atoi(argv[i + 1]);
-                        else
+                        }
+                        else 
                             if (!strcmp(argv[i], "?"))
                                 die("usage: sflock [-v] [-c passchars] [-f fontname] [-xshift horizontal shift]\n");
     }
