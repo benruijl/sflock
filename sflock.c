@@ -94,8 +94,13 @@ main(int argc, char **argv) {
     char* username = ""; 
     int showline = 1;
     int xshift = 0;
+    int no_vtlock = 0;
 
     for (int i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-l")) {
+            no_vtlock = 1;
+            continue;
+        }
         if (!strcmp(argv[i], "-c")) {
             if (i + 1 < argc) 
                 passchar = argv[i + 1];
@@ -122,7 +127,7 @@ main(int argc, char **argv) {
                         }
                         else 
                             if (!strcmp(argv[i], "?"))
-                                die("usage: sflock [-v] [-c passchars] [-f fontname] [-xshift horizontal shift]\n");
+                                die("usage: sflock [-v] [-l] [-c passchars] [-f fontname] [-xshift horizontal shift]\n");
     }
 
     // fill with password characters
@@ -136,8 +141,10 @@ main(int argc, char **argv) {
         perror("error opening console");
     }
 
-    if ((ioctl(term, VT_LOCKSWITCH)) == -1) {
-        perror("error locking console"); 
+    if (!no_vtlock) {
+        if ((ioctl(term, VT_LOCKSWITCH)) == -1) {
+            perror("error locking console"); 
+        }
     }
 
     /* deamonize */
@@ -292,8 +299,10 @@ main(int argc, char **argv) {
 
     /* free and unlock */
     setreuid(geteuid(), 0);
-    if ((ioctl(term, VT_UNLOCKSWITCH)) == -1) {
-        perror("error unlocking console"); 
+    if (!no_vtlock) {
+        if ((ioctl(term, VT_UNLOCKSWITCH)) == -1) {
+            perror("error unlocking console");
+        }
     }
 
     close(term);
