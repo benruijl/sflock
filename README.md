@@ -34,4 +34,5 @@ Custom settings:
 -h: toggle the bar.  
 -f <font description>: modify the font.  
 -c <password characters>: modify the characters displayed when the user enters his password. This can be a sequence of characters to create a fake password.  
+-b: <banner>: display a custom message instead of the current user name.
 

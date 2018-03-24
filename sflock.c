@@ -92,8 +92,10 @@ main(int argc, char **argv) {
     char* passchar = "*";
     char* fontname = "-*-dejavu sans-bold-r-*-*-*-420-100-100-*-*-iso8859-1";
     char* username = ""; 
+    char* banner = "";
     int showline = 1;
     int xshift = 0;
+    int custombanner = 0;
 
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-c")) {
@@ -101,28 +103,35 @@ main(int argc, char **argv) {
                 passchar = argv[i + 1];
             else
                 die("error: no password character given.\n");
-        } else
+        }
+        else
             if (!strcmp(argv[i], "-f")) {
                 if (i + 1 < argc) 
                     fontname = argv[i + 1];
                 else
                     die("error: font not specified.\n");
-            }
-            else
-                if (!strcmp(argv[i], "-v")) 
+        }
+        else
+            if (!strcmp(argv[i], "-b")) {
+                custombanner = 1;
+                banner = argv[i + 1];
+                i++;
+        }
+        else
+            if (!strcmp(argv[i], "-v")) 
                     die("sflock-"VERSION", © 2015 Ben Ruijl\n");
-                else 
-                    if (!strcmp(argv[i], "-h")) 
-                        showline = 0;
-                    else 
-                        if (!strcmp(argv[i], "-xshift")) {
-                            if (i+1 == argc)
-                                die("error: missing xshift value\n");
-                            xshift = atoi(argv[i + 1]);
-                        }
-                        else 
-                            if (!strcmp(argv[i], "?"))
-                                die("usage: sflock [-v] [-c passchars] [-f fontname] [-xshift horizontal shift]\n");
+        else 
+            if (!strcmp(argv[i], "-h")) 
+                    showline = 0;
+        else 
+            if (!strcmp(argv[i], "-xshift")) {
+                if (i+1 == argc)
+                    die("error: missing xshift value\n");
+                xshift = atoi(argv[i + 1]);
+        }
+        else 
+            if (!strcmp(argv[i], "?"))
+                die("usage: sflock [-v] [-c passchars] [-f fontname] [-xshift horizontal shift] [-b banner]\n");
     }
 
     // fill with password characters
@@ -153,6 +162,8 @@ main(int argc, char **argv) {
 #else
     username = getlogin();
 #endif
+    if (!custombanner)
+        banner = username;
 
     if(!(dpy = XOpenDisplay(0)))
         die("sflock: cannot open dpy\n");
@@ -223,7 +234,7 @@ main(int argc, char **argv) {
             x = (width - overall.width) / 2;
             y = (height + ascent - descent) / 2;
 
-            XDrawString(dpy,w,gc, (width - XTextWidth(font, username, strlen(username))) / 2 + xshift, y - ascent - 20, username, strlen(username));
+            XDrawString(dpy,w,gc, (width - XTextWidth(font, banner, strlen(banner))) / 2 + xshift, y - ascent - 20, banner, strlen(banner));
 
             if (showline)
                 XDrawLine(dpy, w, gc, width * 3 / 8 + xshift, y - ascent - 10, width * 5 / 8 + xshift, y - ascent - 10);
