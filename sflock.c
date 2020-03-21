@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <crypt.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
