@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <crypt.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -110,7 +111,7 @@ main(int argc, char **argv) {
             }
             else
                 if (!strcmp(argv[i], "-v")) 
-                    die("sflock-"VERSION", © 2015 Ben Ruijl\n");
+                    die("sflock-\"VERSION\", © 2015 Ben Ruijl\n");
                 else 
                     if (!strcmp(argv[i], "-h")) 
                         showline = 0;
