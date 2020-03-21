@@ -11,7 +11,7 @@ In order to build sflock you need the Xlib header files.
 
 Installation
 ------------
-Arch Linux users can install this package from the AUR(http://aur.archlinux.org/packages.php?ID=44802).
+Arch Linux users can install this package from the AUR(https://aur.archlinux.org/packages/sflock-git/).
 
 Manual installation:
 Edit config.mk to match your local setup (sflock is installed into
@@ -34,4 +34,5 @@ Custom settings:
 -h: toggle the bar.  
 -f <font description>: modify the font.  
 -c <password characters>: modify the characters displayed when the user enters his password. This can be a sequence of characters to create a fake password.  
+-b <banner>: display a custom message instead of the current user name.
 
